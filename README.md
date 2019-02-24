@@ -1,2 +1,2 @@
-# Python
-Python代码
+# Django
+Python的web框架Django代码
