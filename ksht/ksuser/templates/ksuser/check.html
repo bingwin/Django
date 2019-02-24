@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    {% if request.session.gifshowusercheck %}
+
+        <div class="weui-msg">
+            <div class="weui-msg__icon-area"><i class="weui-icon-success weui-icon_msg"></i></div>
+            <div class="weui-msg__text-area">
+                <h2 class="weui-msg__title">操作成功</h2>
+                <p class="weui-msg__desc">你已经成功验证无需再次验证!</p>
+            </div>
+            <div class="weui-msg__opr-area">
+                <p class="weui-btn-area">
+                    <a href="/" class="weui-btn weui-btn_primary">返回首页</a>
+                </p>
+            </div>
+            <div class="weui-msg__extra-area">
+                <div class="weui-footer">
+                    <p class="weui-footer__text">Copyright © 2017-2018 ksht.3agzs.com</p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+
+        <header class='ksht-header'>
+            <h1 class="ksht-title">账号验证</h1>
+            <p class='ksht-sub-title'></p>
+        </header>
+        <p>
+            在作品中使用快手号【<span style="color: #09bb07">{{ request.user.userid }}</span>】
+        </p>
+        <p>
+            评论中输入验证码:
+            <span id="copy" data-clipboard-target="#code">
+            <span id="code" style="color: #09bb07">{{ captcha.code }}</span>
+            <a class="weui-btn weui-btn_mini weui-btn_primary">复制验证码</a>
+
+        </span>
+        </p>
+        <div id="content">
+            <div class="weui-cells">
+                <a id="photo" class="weui-cell weui-cell_access" href="javascript:openkwai_work({{ captcha.photoid }});">
+                    <div class="weui-cell__hd">
+                        <img src="{{ captcha.photourl }}" alt="" style="width:100px;height: 100px;margin-right:5px;display:block">
+
+                    </div>
+                    <div class="weui-cell__bd">
+
+
+                    </div>
+                    <div class="weui-cell__ft"><p>点击进入作品</p>在评论中评论:<span id="code2"
+                                                                         style="color: #09bb07">{{ captcha.code }}</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <p class="weui-btn-area">
+            <a id="check_start" class="weui-btn weui-btn_primary" style="width: 80%">我已评论，开始验证</a>
+        </p>
+        <p class="weui-btn-area">
+            <a id="restart" class="weui-btn weui-btn_primary" style="width: 80%">重新获取验证码</a>
+        </p>
+        <p class="weui-btn-area">
+            <a href="/" class="weui-btn weui-btn_primary" style="width: 80%">放弃验证</a>
+        </p>
+
+
+
+    {% endif %}
+
+
+{% endblock %}
+{% block script %}
+    <script src="{% static "plugins/clipboard/clipboard.min.js" %}"></script>
+    <script type="text/javascript">
+        var clipboard = new Clipboard('#copy');
+
+        clipboard.on('success', function (e) {
+            $.modal({title: '复制成功'});
+            e.clearSelection();
+        });
+
+        clipboard.on('error', function (e) {
+            $.modal({title: '复制失败'});
+        });
+    </script>
+    <script>
+        var check_count = 0;
+        function check_start() {
+            $.hideLoading();
+            $.showLoading("开始验证");
+            $.post("{% url "user:check_start" %}", {"code": $("#code").text()}, function (data, status) {
+                    $.hideLoading();
+                    check_count++;
+                    console.log(check_count);
+                    console.log(data);
+                    if (data.status) {
+                        $.alert("您可以使用联盟的所有功能！", "验证成功", function () {
+                            window.location.href = "/";
+                        });
+                    } else {
+                        if (check_count >= 6) {
+                            $.alert("请确认您是使用快手号【{{ request.user.userid }}】评论的:" + $("#code").text() + "。", "验证失败");
+                        } else {
+                            $.showLoading("验证失败，5秒后重试.");
+                            setTimeout(
+                                check_start
+                                , 5000
+                            )
+                        }
+                    }
+
+                },
+                "json").error(function () {
+                setTimeout(
+                    check_start, 500)
+            });
+
+        }
+        $(function () {
+            $("#restart").click(function () {
+
+
+                $.confirm("重新获取后之前的验证码不可用，是否继续", "确认操作", function () {
+                    $.showLoading();
+                    $.post(window.location.href, {"restart": 1}, function (data, status) {
+                            $.hideLoading();
+                            console.log(data);
+
+
+                            var device = layui.device();
+
+                            if (!device.android && !device.ios) {
+                                $("#code").html(data.code);
+                                var url = "http://" + location.host + "/user/check2?userid={{ request.user.userid }}%26photoid="+data.photoid+"%26photourl="+data.photourl +"%26code="+data.code;
+                                $("#content").html('<div align="center"><p>用手机浏览器扫描:</p><img align="center" src="http://qr.liantu.com/api.php?text=' + url + '"/></div>');
+                            } else {
+                                $("#code").html(data.code);
+                                $("#code2").html(data.code);
+                                $('#photo').attr('href', 'kwai://work/' + data.photoid);
+                            }
+                        },
+                        "json");
+                })
+            });
+
+            $("#check_start").click(function () {
+                check_count = 0;
+                check_start();
+            })
+
+        });
+
+        layui.use(['layer'], function () {
+            var device = layui.device();
+
+            if (!device.android && !device.ios) {
+                var url = "http://" + location.host + "/user/check2?userid={{ request.user.userid }}%26photoid={{ captcha.photoid }}%26photourl={{ captcha.photourl }}%26code={{ captcha.code }}";
+                $("#content").html('<div align="center"><p>用手机浏览器扫描:</p><img align="center" src="http://qr.liantu.com/api.php?text=' + url + '"/></div>');
+            }
+
+
+        });
+
+    </script>
+
+{% endblock %}

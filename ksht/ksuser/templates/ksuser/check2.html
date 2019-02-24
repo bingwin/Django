@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+
+        <header class='ksht-header'>
+            <h1 class="ksht-title">账号验证</h1>
+            <p class='ksht-sub-title'></p>
+        </header>
+        <p>
+            在作品中使用快手号【<span style="color: #09bb07">{{ userid }}</span>】
+        </p>
+        <p>
+            评论中输入验证码:
+            <span id="copy" data-clipboard-target="#code">
+            <span id="code" style="color: #09bb07">{{ code }}</span>
+            <a class="weui-btn weui-btn_mini weui-btn_primary">复制验证码</a>
+
+        </span>
+        </p>
+        <div id="content">
+            <div class="weui-cells">
+                <a id="photo" class="weui-cell weui-cell_access" href="javascript:openkwai_work({{ photoid }});">
+                    <div class="weui-cell__hd">
+                        <img src="{{ photourl }}" alt="" style="width:100px;height: 100px;margin-right:5px;display:block">
+
+                    </div>
+                    <div class="weui-cell__bd">
+
+
+                    </div>
+                    <div class="weui-cell__ft"><p>点击进入作品</p>在评论中评论:<span id="code2"
+                                                                         style="color: #09bb07">{{ code }}</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <p class="weui-btn-area">
+            <a id="check_start" class="weui-btn weui-btn_primary" style="width: 80%">完成</a>
+        </p>
+            <p class="weui-btn-area">
+            <a href="/" class="weui-btn weui-btn_primary" style="width: 80%">返回首页</a>
+        </p>
+
+
+
+{% endblock %}
+{% block script %}
+    <script src="{% static "plugins/clipboard/clipboard.min.js" %}"></script>
+    <script type="text/javascript">
+        var clipboard = new Clipboard('#copy');
+
+        clipboard.on('success', function (e) {
+            $.modal({title: '复制成功'});
+            e.clearSelection();
+        });
+
+        clipboard.on('error', function (e) {
+            $.modal({title: '复制失败'});
+        });
+    </script>
+    <script>
+
+        $("#check_start").click(function () {
+            $.alert("在电脑上点击【我已评论，开始验证】");
+        })
+
+
+    </script>
+
+{% endblock %}

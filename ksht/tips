@@ -1,0 +1,5 @@
+
+django orm:
+install app
+python manage.py makemigrations 创建表
+python manage.py migrate 写入数据库

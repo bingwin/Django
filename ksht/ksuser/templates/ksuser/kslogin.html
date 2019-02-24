@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block content %}
+    <header class='ksht-header'>
+        <h1 class="ksht-title">登陆</h1>
+        <p class='ksht-sub-title'></p>
+    </header>
+    <div class="weui-cells weui-cells_form">
+        <form id="form_login">
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">快手ID</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" id="ksid" placeholder="请输入快手ID或快手号">
+                </div>
+            </div>
+
+        </form>
+    </div>
+    <div class="weui-btn-area">
+        <a class="weui-btn weui-btn_primary" href="javascript:" id="btn_login">登陆</a>
+        <a class="weui-btn weui-btn_primary" href="javascript:" id="tologin">用密码登录（无需验证）</a>
+    </div>
+    <div class="weui-footer">
+        <p class="weui-footer__text">Copyright © 2017-2018 ksht.3agzs.com</p>
+    </div>
+
+    <div id="userlist" class='weui-popup__container'>
+        <div class="weui-popup__overlay"></div>
+        <div class="weui-popup__modal">
+            <div class="toolbar">
+                <div class="toolbar-inner">
+                    <a href="javascript:;" class="picker-button close-popup">取消登录</a>
+                    <h1 class="title">选择你自己的快手号</h1>
+                </div>
+            </div>
+            <div class="modal-content">
+                <div class="weui-cells" id="userlist_cells">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    {% if is_dbuser %}
+        <script>
+            dbts();
+        </script>
+    {% endif %}
+    <script>
+        $(function () {
+            $("#tologin").click(function () {
+
+                var str = location.href; //取得整个地址栏
+                var num = str.indexOf("?")
+                str = str.substr(num + 1);
+                location.href = "/login?"+str;
+
+            });
+        $("#form_login").submit(function (e) {
+            e.preventDefault();
+            $("#btn_login").click();
+        });
+        $("#btn_login").click(function () {
+            var ksid = $("#ksid").val();
+            if (!ksid) {
+                $.toast("快手ID不能空", "forbidden");
+                return
+            }
+
+            if (/^[1-9]\d*$/.test(ksid)) {
+                kslogin(ksid);
+            } else {
+                $.showLoading("登录中");
+                $.ajax({
+                    url: "http://gifshow.3agzs.com/rest/n/user/search?&token=0-0&count=10&user_name=" + ksid,
+                    dataType: "json",
+                    success: function (data, textStatus, jqXHR) {
+                        $.hideLoading();
+
+                        $("#userlist_cells").empty();
+
+                        if (data.users.length == 0) {
+                            $.alert("请使用快手数字ID登录");
+                            $("#ksid").val("");
+                            return
+                        }
+
+                        $.each(data.users, function (key, feed) {
+                            var temp = '<a class="weui-cell weui-cell_access" href="javascript:kslogin(' + feed.user_id + ')">'
+                                + '<div class="weui-cell__hd"><img src="' + feed.headurl + '" alt="" style="width:20px;margin-right:5px;display:block"></div>'
+                                + '<div class="weui-cell__bd">'
+                                + '<p>' + feed.user_name + '</p>'
+                                + '</div>'
+                                + '<div class="weui-cell__ft">ID:' + feed.user_id + '</div>'
+                                + '</a>';
+                            console.log(temp);
+                            $("#userlist_cells").append(
+                                temp
+                            )
+
+                        });
+                        $("#userlist").popup();
+
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        $.hideLoading();
+                        $.alert("登录失败，请重试");
+                    }
+                });
+            }
+
+
+        });
+        });
+
+        function kslogin(ksid) {
+            $.showLoading("登录中");
+            $.post(window.location.href, {"ksid": ksid}, function (data) {
+                $.hideLoading();
+                if (data["err"] == 0) {
+                    $.toast("登陆成功！");
+                    console.log(data);
+                    setTimeout("javascript:location.href='" + data["url"] + "'", 2000);
+                } else if (data["err"] == -1) {
+                    $.toast(data["msg"], "forbidden");
+                } else if (data["err"] == -2) {
+                    $.modal({
+                        title: "密码错误",
+                        text: "密码错误，是否通过ID直接登录？",
+                        buttons: [
+                            {
+                                text: "确定", onClick: function () {
+                                kslogin(ksid, "")
+                            }
+                            }
+                            , {
+                                text: "取消"
+                            }
+                        ]
+
+                    });
+                } else {
+                    $.toast("异常错误，请联系管理员！", "forbidden");
+                }
+            }, "json");
+        }
+
+
+    </script>
+
+{% endblock %}

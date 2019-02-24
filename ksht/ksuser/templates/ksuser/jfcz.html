@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block content %}
+    <header class='ksht-header'>
+        <h2 class="ksht-second-title">积分购买</h2>
+    </header>
+    <div class="weui-cells weui-cells_form">
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">快手ID</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" id="ksid" placeholder="请输入快手ID或快手号">
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <a id="cz" style="width: 80%" class="weui-btn weui-btn_primary">去充值</a>
+
+        </div>
+        <div class="weui-cell">
+            <a id="kefu" style="width: 80%" class="weui-btn weui-btn_primary">充值遇到问题？</a>
+        </div>
+
+    </div>
+
+    <article class="weui-article">
+        <section>
+            <h1 >每月首次充值 </h1>
+            <section>
+                <p>
+                    每月首次充值且满30元以上双倍积分。<br>
+                    10元1000积分<br>
+                    20元2000积分<br>
+                    30元6000积分<br>
+                    50元10000积分<br>
+                    100元20000积分<br>
+                    200元40000积分<br>
+                    300元60000积分<br>
+                    500元100000积分<br>
+
+                </p>
+
+            </section>
+            <h1 >非首充</h1>
+            <section>
+                10元1000积分<br>
+                20元2000积分<br>
+                30元3500积分<br>
+                50元6000积分<br>
+                100元13000积分<br>
+                200元30000积分<br>
+                300元50000积分<br>
+                500元100000积分<br>
+            </section>
+        </section>
+    </article>
+    <div id="userlist" class='weui-popup__container'>
+        <div class="weui-popup__overlay"></div>
+        <div class="weui-popup__modal">
+            <div class="toolbar">
+                <div class="toolbar-inner">
+                    <a href="javascript:;" class="picker-button close-popup">取消</a>
+                    <h1 class="title">选择你自己的快手号</h1>
+                </div>
+            </div>
+            <div class="modal-content">
+                <div class="weui-cells" id="userlist_cells">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+
+{% block script %}
+    <script>
+        $(function () {
+            var URLParams = new Array();
+            var aParams = document.location.search.substr(1).split('&');
+            for (var i = 0; i < aParams.length; i++) {
+                var aParam = aParams[i].split('=');
+                URLParams[aParam[0]] = aParam[1];
+            }
+            $("#ksid").val(URLParams["ksid"]);
+
+
+            $("#kefu").click(function () {
+                kefu_open();
+            });
+
+            $("#cz").click(function () {
+
+                var ksid = $("#ksid").val();
+                if (!ksid) {
+                    $.toast("快手ID不能空", "forbidden");
+                    return
+                }
+
+                if (/^[1-9]\d*$/.test(ksid)) {
+                    tocz(ksid);
+                } else {
+                    $.showLoading("登录中");
+                    $.ajax({
+                        url: "http://gifshow.3agzs.com/rest/n/user/search?&token=0-0&count=10&user_name=" + ksid,
+                        dataType: "json",
+                        success: function (data, textStatus, jqXHR) {
+                            $.hideLoading();
+
+                            $("#userlist_cells").empty();
+
+                            if (data.users.length == 0) {
+                                $.alert("请使用快手数字ID充值");
+                                $("#ksid").val("");
+                                return
+                            }
+
+
+                            $.each(data.users, function (key, feed) {
+                                var temp = '<a class="weui-cell weui-cell_access" href="javascript:tocz(' + feed.user_id + ')">'
+                                    + '<div class="weui-cell__hd"><img src="' + feed.headurl + '" alt="" style="width:20px;margin-right:5px;display:block"></div>'
+                                    + '<div class="weui-cell__bd">'
+                                    + '<p>' + feed.user_name + '</p>'
+                                    + '</div>'
+                                    + '<div class="weui-cell__ft">ID:' + feed.user_id + '</div>'
+                                    + '</a>';
+                                $("#userlist_cells").append(
+                                    temp
+                                )
+
+                            });
+                            $("#userlist").popup();
+
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            $.hideLoading();
+                            $.alert("登录失败，请重试");
+                        }
+                    });
+                }
+
+            });
+
+
+        });
+
+        function tocz(ksid) {
+            window.location.href = "http://pay3.youyunnet.com/pay/get.php?pid=3003896911&url=http://ksht.3agzs.com/user/profile&data=" + encodeURI("积分充值:" + ksid);
+        }
+    </script>
+{% endblock %}

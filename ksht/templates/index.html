@@ -1,0 +1,144 @@
+{% extends "base-nav.html" %}
+{% load static %}
+
+{#{% block meta_keywords %}上热门,开直播,互粉,刷播放{% endblock %}#}
+{#{% block meta_description %}无需任何软件，你只需要一个浏览器！就可以刷GIF快手的播放量，上热门无压力！{% endblock %}#}
+
+
+{% block refresh %}{% endblock %}
+{% block refresh_script %}{% endblock %}
+{% block title %}快手网红联盟{% endblock %}
+{% block _content %}
+    <header class='ksht-header'>
+        <h1 class="ksht-title">首页</h1>
+        <p class='ksht-sub-title'></p>
+
+    </header>
+    <div class="weui-grids">
+        <a href="{% url "photo:bofan" %}" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <i class="iconfont">&#xe679;</i>
+            </div>
+            <p class="weui-grid__label">
+                刷浏览量
+            </p>
+        </a>
+        <a href="{% url "order:placeorder" %}" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <i class="iconfont">&#xe65a;</i>
+            </div>
+            <p class="weui-grid__label">
+                云端刷量
+            </p>
+        </a>
+        <a href="{% url "photo:list" %}" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <i class="iconfont">&#xe626;</i>
+            </div>
+            <p class="weui-grid__label">
+                互推大厅
+            </p>
+        </a>
+        <a href="{% url "photo:download" %}" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <i class="iconfont">&#xe62a;</i>
+            </div>
+            <p class="weui-grid__label">
+                无水印下载
+            </p>
+        </a>
+        <a href="http://ksh.99ksh.com" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <i class="iconfont">&#xe60b;</i>
+            </div>
+            <p class="weui-grid__label">
+                交易平台
+            </p>
+        </a>
+
+        <a href="{% url "user:tguser" %}" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <i class="iconfont">&#xe626;</i>
+            </div>
+            <p class="weui-grid__label">
+                互粉链接
+            </p>
+        </a>
+        <a href="{% url "user:tg" %}" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <i class="iconfont">&#xe60b;</i>
+            </div>
+            <p class="weui-grid__label">
+                关注送积分
+            </p>
+        </a>
+
+
+        <a href="{% url "home:help" %}" class="weui-grid js_grid">
+            <div class="weui-grid__icon">
+                <i class="iconfont">&#xe661;</i>
+            </div>
+            <p class="weui-grid__label">
+                使用帮助
+            </p>
+        </a>
+        <a href="{% url "kslogin" %}" class="weui-grid js_grid">
+                <div class="weui-grid__icon">
+                    <i class="iconfont">&#xe659;</i>
+                </div>
+                <p class="weui-grid__label">
+                    切换账号
+                </p>
+            </a>
+        {% if  request.is_appuser %}
+            {#            <a href="{% url "live:rq" %}" class="weui-grid js_grid">#}
+            {#                <div class="weui-grid__icon">#}
+            {#                    <i class="iconfont">&#xe6bf;</i>#}
+            {#                </div>#}
+            {#                <p class="weui-grid__label">#}
+            {#                    直播间人气#}
+            {#                </p>#}
+            {#            </a>#}
+
+        {% else %}
+            <a href="http://ksht.oss-cn-hangzhou.aliyuncs.com/download/ksht.apk" class="weui-grid js_grid">
+                <div class="weui-grid__icon">
+                    <i class="iconfont">&#xe62a;</i>
+                </div>
+                <p class="weui-grid__label">
+                    下载APP，更方便
+                </p>
+            </a>
+        {% endif %}
+    </div>
+{#    老铁们！我们诚邀你们跟我们平台一起成长，你们需要什么我们就往你们需要的方面发展，一起体验快手带给我们的乐趣！更多福利加Q群:635342337#}
+{#    <a target="_blank"#}
+{#       href="//shang.qq.com/wpa/qunwpa?idkey=8d7924ba3c005b7d8a165904eafb97d4456b04cb682e0a44348078415d1badf4"><img#}
+{#            border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="快手网红联盟" title="快手网红联盟"></a>#}
+
+
+
+{% endblock %}
+
+{% block script %}
+    {% if request.is_appuser %}
+        <script>
+            apiready = function () {
+                $(function () {
+                    $("#liverq").click(function () {
+                        alert(api.appVersion);
+                    })
+                })
+            };
+
+
+        </script>
+    {% endif %}
+
+    {#    {% if request.is_dbuser %}#}
+    {#        <script>#}
+    {#            dbts();#}
+    {#        </script>#}
+    {#    {% endif %}#}
+
+{% endblock %}

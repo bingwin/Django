@@ -1,0 +1,219 @@
+{% extends "base-nav.html" %}
+{% load static %}
+{% block  title %}个人中心{% endblock %}
+
+{% block _content %}
+    {#        <header class='ksht-header'>#}
+    {#            <h1 class="ksht-title">我的信息</h1>#}
+    {#            <p class='ksht-sub-title'></p>#}
+    {#        </header>#}
+    {#    <div class="weui-panel weui-panel_access">#}
+    {#        <div class="weui-panel__hd">我的信息</div>#}
+    {#        <div class="weui-panel__bd">#}
+    {#            <a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">#}
+    {#                <div class="weui-media-box__hd">#}
+    {#                    <img class="weui-media-box__thumb" src="">#}
+    {#                </div>#}
+    {#                <div class="weui-media-box__bd">#}
+    {#                    <h4 class="weui-media-box__title">快手ID：<b>{{ request.user.userid }}</b></h4>#}
+    {#                    <p class="weui-media-box__desc">当前积分：<b>{{ request.user.integral }}</b>#}
+    {#                    </p>#}
+    {##}
+    {##}
+    {#                </div>#}
+    {#            </a>#}
+    {#        </div>#}
+    {##}
+    {#    </div>#}
+    <div class="weui-cells__title">我的信息</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>快手ID</p>
+            </div>
+            <div class="weui-cell__ft">{{ request.user.userid }}</div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>密码</p>
+            </div>
+            <div class="weui-cell__ft"><a
+                    class="weui-btn weui-btn_mini weui-btn_primary modpass" type="button">修改密码</a></div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>用户类型</p>
+            </div>
+            <div class="weui-cell__ft">{{ request.user.get_viplevel_display }}<a
+                    class="weui-btn weui-btn_mini weui-btn_primary contact" type="button">提升会员</a></div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>当前积分</p>
+            </div>
+
+            <div class="weui-cell__ft">{{ request.user.integral }}<a class="weui-btn weui-btn_mini weui-btn_primary"
+                                                                     href="/page/jfcz?ksid={{ request.user.userid }}"
+                                                                     type="button">充值积分</a></div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>信誉值（签到增加）</p>
+            </div>
+            <div class="weui-cell__ft">{{ request.user.credit }}</div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>签到赚积分</p>
+            </div>
+
+            <div class="weui-cell__ft">
+                <a href="/page/sign" class="weui-btn weui-btn_mini weui-btn_primary">签到</a>
+            </div>
+        </div>
+    </div>
+    <div class="weui-cells__title">联系客服</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>客服</p>
+            </div>
+            <div class="weui-cell__ft qyunread">
+                <a class="weui-btn weui-btn_mini weui-btn_primary kefu">联系客服</a>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>意见反馈</p>
+            </div>
+            <div class="weui-cell__ft qyunread">
+                <a class="weui-btn weui-btn_mini weui-btn_primary kefu">意见反馈</a>
+            </div>
+        </div>
+    </div>
+    <div class="weui-cells__title">其他信息</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>推广作品数</p>
+            </div>
+            <div class="weui-cell__ft">{{ count_photo }}</div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>被赞数</p>
+            </div>
+            <div class="weui-cell__ft">{{ count_like }}</div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>被评数</p>
+            </div>
+            <div class="weui-cell__ft">{{ count_comment }}</div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>邀请人数</p>
+            </div>
+            <div class="weui-cell__ft">{{ count_referee }}</div>
+        </div>
+
+
+    </div>
+
+
+
+    <div class="weui-panel weui-panel_access">
+        <div class="weui-panel__hd">积分获得方式</div>
+        <div class="weui-panel__bd">
+            <div class="weui-media-box weui-media-box_text">
+                <h4 class="weui-media-box__title">邀请用户</h4>
+                <p class="weui-media-box__desc">每邀请1个有效用户获得{{ request.site.jifen_tg }}积分
+                    <a href="{% url "user:tguser" %}" class="weui-btn weui-btn_mini weui-btn_primary">去推广页面</a>
+                </p>
+            </div>
+            <div class="weui-media-box weui-media-box_text">
+                <h4 class="weui-media-box__title">互推大厅中互动</h4>
+                <p class="weui-media-box__desc">在互推大厅中，给他人点赞/评论可以获得积分.
+                    <a href="{% url "photo:list" %}" class="weui-btn weui-btn_mini weui-btn_primary">去互推大厅</a>
+                </p>
+            </div>
+
+
+        </div>
+
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="{% static "plugins/clipboard/clipboard.min.js" %}"></script>
+    <script type="text/javascript">
+        var clipboard = new Clipboard('#copy');
+
+        clipboard.on('success', function (e) {
+            $.modal({title: '复制成功'});
+
+            e.clearSelection();
+        });
+
+        clipboard.on('error', function (e) {
+            $.modal({title: '复制失败'});
+        });
+
+        $(".contact").click(function () {
+            $.alert("提升会员请联系客服", "提示");
+        });
+
+        $(".modpass").click(function () {
+            $.prompt({
+                title: '设置密码',
+                input: '',
+                empty: false, // 是否允许为空
+                onOK: function (input) {
+                    $.post("{% url "user:modpass" %}", {"password": input}, function (data) {
+                        if (data["err"] == 0) {
+                            $.alert("修改成功");
+                        } else if (data["err"] == -2) {
+                            $.toast(data["msg"], "forbidden");
+                            window.location.href = "/user/check";
+
+                        } else {
+                            $.alert("修改失败");
+                        }
+
+                    });
+                },
+                onCancel: function () {
+                    //点击取消
+                }
+            });
+        });
+        $(".kefu").click(function () {
+                kefu_open();
+            }
+        );
+        $("#sign").click(function () {
+            $.showLoading();
+            $.post("{% url "user:sign" %}", {type: 1}, function (data) {
+                $.hideLoading();
+                if (data["err"] == 0) {
+                    $.alert(data.msg, "提示", function () {
+                        window.location.href = window.location.href;
+                    });
+                } else if (data["err"] == -1) {
+                    $.toast(data["msg"], "forbidden");
+                } else if (data["err"] == -2) {
+                    $.toast(data["msg"], "forbidden");
+                    window.location.href = "/user/check"
+                } else {
+                    $.toast("异常错误，请联系管理员！", "forbidden");
+                }
+            }, "json").error(function () {
+                $.hideLoading()
+            });
+
+
+        })
+
+
+    </script>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base-nav.html" %}
+{% load static %}
+{% block  title %}关注赚积分{% endblock %}
+{% block _content %}
+    <div class="weui-cells__title">第一步：关注以下用户</div>
+
+
+    <div class="weui-cells">
+
+        {% if tgusers.count == 0 %}暂无推广用户{% else %}
+            {% for tguser in tgusers %}
+            <a class="weui-cell weui-cell_access" href="javascript:openkwai_profile({{ tguser.user.userid }});">
+                <div class="weui-cell__hd">
+                    <img src="{{ tguser.owner_head }}"
+                         alt="" style="width:100px;height: 100px;margin-right:5px;display:block">
+                </div>
+                <div class="weui-cell__bd">
+
+                </div>
+                <div class="weui-cell__ft">发现有取关的永久限制使用本联盟</div>
+            </a>
+        {% endfor %}
+        {% endif %}
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <div>
+    <div class="weui-cells__title">第二步：将关注列表截图和您的快手数字ID发送给客服</div>
+
+    <a class="weui-btn weui-btn_primary" style="width: 80%" onclick="javascript:kefu_open();">联系客服</a>
+
+
+{% endblock %}
+{% block script %}
+    <script type="text/javascript">
+    $.alert("关注列表中{{ tgusers.count }}个人，发送关注列表和您的快手数字ID给客服，验证成功后，共送{{ jf }}积分。");
+    </script>
+
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base-nav.html" %}
+{% load static %}
+{% block  title %}签到{% endblock %}
+
+{% block _content %}
+
+    <div class="weui-cells__title">签到</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>网页/app签到</p>
+            </div>
+            <div class="weui-cell__ft"><a id="sign_app" class="weui-btn weui-btn_mini weui-btn_primary"
+                                          type="button">点击签到</a></div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>微信签到</p>
+            </div>
+            <div class="weui-cell__ft"><a id="sign_wechat" class="weui-btn weui-btn_mini weui-btn_primary"
+                                          type="button">点击签到</a></div>
+        </div>
+
+
+    </div>
+    <div class="weui-panel weui-panel_access">
+        <div class="weui-panel__hd">说明</div>
+        <div class="weui-panel__bd">
+            <div class="weui-media-box weui-media-box_text">
+                <h4 class="weui-media-box__title">微信签到口令获得方式</h4>
+                <p class="weui-media-box__desc">
+                    关注微信<span id="copy" data-clipboard-target="#wx">
+                <span id="wx" style="color: #09bb07">{{ sign_wechat }}</span><a
+                            class="weui-btn weui-btn_mini weui-btn_primary">点击复制</a></span>，每日朋友圈会更新口令,不要重复加微信哦，口令都是一样的。
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+
+{% endblock %}
+{% block script %}
+    <script src="{% static "plugins/clipboard/clipboard.min.js" %}"></script>
+
+    <script type="text/javascript">
+        var clipboard = new Clipboard('#copy');
+
+        clipboard.on('success', function (e) {
+            $.modal({title: '复制成功'});
+
+            e.clearSelection();
+        });
+
+        clipboard.on('error', function (e) {
+            $.modal({title: '复制失败'});
+        });
+
+        function sign(type, key) {
+            $.showLoading();
+            $.post("{% url "user:sign" %}", {type: type, key: key}, function (data) {
+                $.hideLoading();
+                if (data["err"] == 0) {
+                    $.alert(data.msg, "提示", function () {
+                        window.location.href = window.location.href;
+                    });
+                } else if (data["err"] == -1) {
+                    $.toast(data["msg"], "forbidden");
+                } else if (data["err"] == -2) {
+                    $.toast(data["msg"], "forbidden");
+                    window.location.href = "/user/check"
+                } else if (data["msg"]) {
+                    $.toast(data["msg"], "forbidden");
+
+                } else {
+                    $.toast("异常错误，请联系管理员！", "forbidden");
+                }
+            }, "json").error(function () {
+                $.hideLoading()
+            });
+        }
+
+        $(function () {
+            $("#sign_app").click(function () {
+                sign(1, "");
+            });
+            $("#sign_wechat").click(function () {
+                $.prompt("请输入签到口令", function (text) {
+                    sign(2, text);
+                }, function () {
+                });
+
+            });
+
+
+        });
+
+
+    </script>
+{% endblock %}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+	<title>互粉历史列表</title>
+</head>
+<body ontouchstart>
+<link href="{{ static_url('css/weui.min.css')}}" rel="stylesheet" type="text/css" />
+<link href="{{ static_url('css/weui.css')}}" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="{{ static_url('js/jquery-2.1.4.js')}}"></script>
+<script type="text/javascript" src="{{ static_url('js/jquery-2.1.4.min.js')}}"></script>
+<script type="text/javascript" src="{{ static_url('layer/layer.js')}}" ></script>
+<script type="text/javascript" src="{{ static_url('js/gifshow.js')}}"></script>
+<script type="text/javascript" src="{{ static_url('js/list.js')}}"></script>
+<style>
+    .btn {
+        position: absolute;
+        right: 10px;
+    }
+    .btn2{
+        position:absolute;
+        right:100px;
+    }
+    .li {
+        line-height:30px;
+    }
+</style>
+
+<div class="weui_cells">
+    <div class="weui_cell">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p>快手ID:{{userid}}</p>
+        </div>
+        <br>
+        <div class="weui_cell_bd weui_cell_primary">
+            <p>取关列表:</p>
+            <ul>
+                {% for cel in cancel %}
+                    <li class="li" value={{cel[0]}}>{{cel[1]}}<button class="btn weui_btn weui_btn_mini weui_btn_primary" onclick="CancelFocus(this,$(this).parent().val(),0)">去取关对方</button></li>
+                {% end %}
+            </ul>
+        </div>
+        <br>
+        <div class="weui_cell_bd weui_cell_primary">
+            <p>失败列表:</p>
+            <ul>
+                {% for fa in fail %}
+                    <li class="li" value={{fa[0]}}>{{fa[1]}}<button class="btn weui_btn weui_btn_mini weui_btn_primary" onclick="ReFocus(this,$(this).parent().val(),0)">去关注对方</button></li>
+                {% end %}
+            </ul>
+        </div>
+        <br>
+        <div class="weui_cell_bd weui_cell_primary">
+            <p>互粉列表:</p>
+            <ul>
+                {% for suc in success %}
+                    <li class="li" value={{suc[0]}}>{{suc[1]}}
+                        <button class="btn weui_btn weui_btn_mini weui_btn_warn" onclick="CancelFocus(this,$(this).parent().val(),1)">举报对方取关</button>
+                        <!--<button class="weui_btn weui_btn_mini weui_btn_warn" onclick="CancelFocus($(this).parent().val(),1)">去取关对方</button>-->
+                    </li>
+                {% end %}
+            </ul>
+        </div>
+
+        <br>
+    </div>
+</div>
+
+<div id="btn">
+    <button class="weui_btn weui_btn_primary" id="CheckFocus">查看自己的关注列表</button>
+    <button class="weui_btn weui_btn_primary" id="CheckFollow">查看自己的粉丝列表</button>
+    <button class="weui_btn weui_btn_primary" id="RetToHall">返回互粉大厅</button>
+</div>
+
+
+</body>
+</html>

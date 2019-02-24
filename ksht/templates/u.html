@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+    <header class='ksht-header'>
+        <h1 class="ksht-title">ID：{{ userid }}</h1>
+        <p class='ksht-sub-title'></p>
+    </header>
+
+    <div class="weui-msg__text-area">
+        <h2 class="weui-msg__title">感谢您的关注</h2>
+        <p class="weui-msg__desc">我的快手ID：{{ userid }},关注成功后可免费刷播放,互赞,还能创建跟我一样的主页哦</p>
+    </div>
+    <div class="weui-msg__opr-area">
+        <p class="weui-btn-area">
+            <a href="kwai://profile/{{ userid }}" class="weui-btn weui-btn_primary">去关注</a>
+            <a href="/" class="weui-btn weui-btn_default">加入快手网红联盟，一起做网红</a>
+        </p>
+    </div>
+    <div class="weui-msg__extra-area">
+        <div class="weui-footer">
+            <p class="weui-footer__links">
+                <a href="/" class="weui-footer__link">快手网红联盟</a>
+            </p>
+            <p class="weui-footer__text">Copyright © 2017-2018 ksht.3agzs.com</p>
+        </div>
+    </div>
+
+{% endblock %}
+{% block script %}
+    <script>
+        var iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = "kwai://profile/{{ userid }}";
+        document.body.appendChild(iframe);
+
+{#        setTimeout(function () {#}
+{#            window.location.href = "kwai://profile/{{ userid }}";#}
+{#            window.event.returnValue = false;#}
+{#        }, 1000);#}
+
+    </script>
+{% endblock %}

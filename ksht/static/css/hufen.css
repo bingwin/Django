@@ -1,0 +1,74 @@
+.user-name {
+    height: 35px;
+}
+
+.user-num {
+    line-height: 20px;
+    height: 35px;
+    padding: 0 8px;
+    *margin-top: 20px;
+    *height: 50px
+}
+
+.user-num .my-count-em {
+    *position: relative;
+    *top: -2px
+}
+
+.user-num-item {
+    line-height: 0;
+    position: relative;
+    top: 10px;
+    width: 60px;
+    height: 24px;
+    border-left: 1px solid #e9e8e9
+}
+
+.user-num .first {
+    border-left: 0
+}
+
+.user-txt, .user-txt-1 {
+    font-size: 15px;
+    line-height: 12px;
+    display: block;
+    width: 60px;
+    height: 12px;
+    text-align: center;
+    color: #585858
+}
+
+.user-txt {
+    top: -2px
+}
+
+.user-txt-1 {
+    font-size: 12px;
+    bottom: -3px;
+    color: #969696
+}
+
+.user-r-share {
+    font-size: 12px;
+    line-height: 25px;
+    z-index: 4;
+    top: 12px;
+    right: 12px;
+    width: 78px;
+    height: 22px;
+    margin-left: 15px;
+    text-indent: 17px;
+    color: #484848;
+    border-radius: 22px;
+    background: #eaeaea
+}
+
+.user-r-share:hover {
+    background: #f8f8f9
+}
+
+.dbl {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1
+}

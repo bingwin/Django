@@ -1,0 +1,44 @@
+{% extends "base-nav.html" %}
+{% block title %}创建互粉页面{% endblock %}
+{% block _content %}
+
+
+    <div class="weui-cells weui-cells_form">
+
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">互粉页面</label></div>
+            <div class="weui-cell__bd">
+                <textarea class="weui-textarea" id="url" rows="7">http://ksht.3agzs.com/u/{{ request.user.userid }} 我也加入了快手网红联盟一起互推，大家一起来互赞互评吧，关注我后还可以免费刷播放。（如果打不开页面，请复制链接到系统浏览器中打开）</textarea>
+            </div>
+        </div>
+        <div class="weui-btn-area">
+            <a href="http://ksht2.3agzs.com/u/{{ request.user.userid }}" class="weui-btn weui-btn_primary">预览</a>
+        </div>
+    </div>
+    <div class="weui-btn-area">
+        <a id="copy" data-clipboard-target="#url" class="weui-btn weui-btn_primary">复制</a>
+    </div>
+
+    </div>
+
+{% endblock %}
+{% load static %}
+{% block script %}
+    <script src="{% static "plugins/clipboard/clipboard.min.js" %}"></script>
+
+    <script type="text/javascript">
+        var clipboard = new Clipboard('#copy');
+
+        clipboard.on('success', function (e) {
+            $.modal({title: '复制成功' });
+
+            e.clearSelection();
+        });
+
+        clipboard.on('error', function (e) {
+            $.modal({title: '复制失败' });
+        });
+    </script>
+{% endblock %}
+

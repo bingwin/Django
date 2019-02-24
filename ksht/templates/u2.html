@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>快手网红联盟</title>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+    <meta name="keywords" content="undefined">
+    <meta name="description" content="undefined">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta http-equiv="x-dns-prefetch-control" content="on">
+    <link rel="stylesheet" type="text/css" href="{% static "gifshow/css/style.css" %}">
+    <script></script>
+    <style id="style-1-cropbar-clipper">/* Copyright 2014 Evernote Corporation. All rights reserved. */
+    .en-markup-crop-options {
+        top: 18px !important;
+        left: 50% !important;
+        margin-left: -100px !important;
+        width: 200px !important;
+        border: 2px rgba(255, 255, 255, .38) solid !important;
+        border-radius: 4px !important;
+    }
+
+    .en-markup-crop-options div div:first-of-type {
+        margin-left: 0px !important;
+    }
+
+
+    </style>
+</head>
+<body logp="" class="body_">
+<div class="content"><img id = "head"
+        src=""
+        class="avatar">
+    <div class="user-name" id="user-name"></div>
+    <div class="user-id">快手ID：{{ userid }}</div>
+    <a href="javascript:openkwai_profile({{ userid }});" class="open-btn">去关注</a>
+    <a href="/" class="tohome-btn">加入快手网红联盟</a>
+</div>
+<script type="text/javascript"
+        src="{% static "gifshow/js/zep_fast_req_underscore.js" %}"></script>
+<script src="{% static "js/jquery-2.1.4.min.js" %}"></script>
+<script src="{% static "js/gifshow.js" %}?v=1.0.0"></script>
+<script>// require 配置
+
+// FastClick绑定
+if (!window.banFastClick && 'addEventListener' in document) {
+    document.addEventListener('DOMContentLoaded', function () {
+        FastClick.attach(document.body);
+    }, false);
+}
+
+$(function () {
+                $.ajax({
+                    url: "http://gifshow.3agzs.com/rest/n/user/profile/v2?user={{ userid }}",
+                    dataType: "json",
+                    success: function (data, textStatus, jqXHR) {
+                        var profile=  data["userProfile"]["profile"];
+                        console.log(data);
+                        $("#user-name").html(profile.user_name);
+                        $("#head").attr("src",profile.headurl);
+                    }
+                });
+})
+</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?1eb47998ff44e9ebbf617026432e7dc7";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+</body>
+</html>

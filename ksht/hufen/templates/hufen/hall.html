@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+	<title>互粉大厅</title>
+</head>    
+<body>
+<link href="{{ static_url('layui/css/layui.css')}}" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="{{ static_url('js/jquery-2.1.4.js')}}"></script>
+<script type="text/javascript" src="{{ static_url('js/jquery-2.1.4.min.js')}}"></script>
+<script type="text/javascript" src="{{ static_url('layui/layui.js')}}" ></script>
+<script type="text/javascript" src="{{ static_url('js/gifshow.js')}}"></script>
+<script type="text/javascript">
+	var time = 60; //统一设置加载时延 单位:秒
+	var ws = new WebSocket("ws://"+window.location.host+"/hufen");
+	ws.onopen = function (evt) {
+        console.log("open!")
+    };// 建立连接
+    ws.onmessage = function (evt) {    // 获取服务器返回的信息
+		clearlayer();
+        console.log(evt.data);
+        data = JSON.parse(evt.data);
+		if('action' in data){
+		    switch(data.action) {
+                case 'pair':
+                    console.log(data.userdata);
+                    var temp =
+                        '<div class="user-name">用户名：' + data.username + '</div>' +
+                        '<div class="user-id" >快手ID：' + data.userid + '</div>' +
+						'<div class="user-txt-1" >作品数：' + data.photo + '</div>' +
+						'<div class="user-txt-1" >信誉值：' + data.credit + '</div>';
+
+                    layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            content: temp,
+                            btn: ['确认互粉', '换个老铁'],
+                            yes: function () {
+//						      确认的回调
+                                ws.send(JSON.stringify({"action": "dopair"}));
+                                var temp = '<div>正在等待对方确认，请稍等...</div>';
+                                onloading(temp,time);
+                                return false
+                            },
+                            btn2: function () {
+//						      	换个老铁的回调
+								clearlayer();
+                                ws.send(JSON.stringify({
+                                    "action": "repair",
+                                    "state": "firstrepair"}));//首先提出换人
+                                var temp = '<div>正在重新匹配，请稍等...</div>';
+                                onloading(temp,time);
+                                return false //禁止点击该按钮关闭
+                            },
+                            cancel: function (index) {
+//						        右上角关闭回调
+                                if(confirm('是否确认取消此次互粉')){
+                                    ws.send(JSON.stringify({"action":"CancelPairSecond"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            }
+                        });
+                    });
+                    break;//双方确认是否进行互粉
+                case 'dopairfirst': //确认要互粉了，低信誉值用户先关注
+                    var temp =
+                        '<div class="user-id" >快手ID：' + data.userid +
+                        '<span class="user-txt-1">愿意互粉</span>' +
+                        "</div>";
+                    layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            content: temp,
+							btn:['去关注TA','不关注TA'],
+							yes: function () {
+//						      	确认的回调
+								openkwai_profile(data.userid);
+								clearlayer();
+								ws.send(JSON.stringify({"action":"ConfirmPairFirst"}));
+								return false
+                            },
+                            btn2: function (index) {
+//						      	取消的回调
+                                if(confirm('此时取消关注导致互粉失败，会扣除你的信誉值！')){
+                                    ws.send(JSON.stringify({
+                                        "action":"CancelPairFirst",
+                                        "state": "cancelpair"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            },
+                            cancel: function (index) {
+//						        右上角关闭回调
+                                if(confirm('此时取消关注导致互粉失败，会扣除你的信誉值！')){
+                                    ws.send(JSON.stringify({
+                                        "action":"CancelPairFirst",
+                                        "state": "cancelpair"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            }
+                        });
+                    });
+					break; //低信誉值用户选择是否去快手关注匹配用户
+				case 'dopairsecond':
+				    var temp;
+				    switch (data.state) {
+                        case 'wait':
+                            temp = '<div>对方正在关注你，请稍等...</div>';
+                            break;
+                        case 'makeconfirm':
+                            temp = '<div>对方正在确认你是否已经关注TA，请稍等...</div>';
+                            break;
+                    };
+				    onloading(temp,time); //等待对方关注您
+					break;//高信誉值用户等待对方确认与关注
+				case 'dofocusfirst':
+				    var temp;
+				    switch (data.state) {
+                        case 'makeconfirm':
+                            temp = '<div>对方正在确认你是否已经关注TA，请稍等...</div>';
+                            break;
+                        case 'makefocus':
+                            temp = '<div>对方已确认你关注了TA，请稍等...</div>';
+                            break;
+                        case 'dofocus':
+                            temp = '<div>对方正在关注你，请稍等...</div>';
+                            break;
+                    };
+				    onloading(temp,time);
+				    break;//低信誉值用户等待对方确认与关注
+				case 'dofocussecond':
+				    var temp =
+                        '<span class="user-txt-1">是否已经关注对方</span>';
+                    layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            content: temp,
+							btn:['已经关注','没有关注'],
+							yes: function () {
+//						      	确认的回调
+								ws.send(JSON.stringify({"action":"ConfirmSuccessFirst"}));
+								clearlayer();
+								temp = '<div>对方正在关注你，请稍等...</div>';
+								onloading(temp,time);
+								return false
+                            },
+							btn2:function (index) {
+                                if(confirm('已确认对方关注了你，若此时取消关注导致互粉失败，会扣除你的信誉值！')){
+                                    ws.send(JSON.stringify({
+                                        "action":"CancelPairFirst",
+                                        "state":"cancelfocusafter"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            },
+                            cancel: function (index) {
+//						      	右上角关闭回调
+								if(confirm('已确认对方关注了你，若此时取消关注导致互粉失败，会扣除你的信誉值！')){
+                                    ws.send(JSON.stringify({
+                                        "action":"CancelPairFirst",
+                                        "state":"cancelfocusafter"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            }
+                        });
+                    });
+                    break;//高信誉值用户选择是否已经关注对方
+				case 'doconfirmfirst':
+				    var temp =
+                        '<span class="user-txt-1">是否已经关注对方</span>';
+                    layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            content: temp,
+							btn:['已经关注','没有关注'],
+							yes: function () {
+//						      	确认的回调
+								ws.send(JSON.stringify({"action":"ConfirmFocusFirst"}));
+								clearlayer();
+								temp = '<div>对方正在关注你，请稍等...</div>';
+								onloading(temp,time);
+								return false
+                            },
+							btn2:function (index) {
+                                if(confirm('此时取消关注导致互粉失败，会扣除你的信誉值！')){
+                                    ws.send(JSON.stringify({
+										"action":"CancelPairFirst",
+										"state":"cancelfocus"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            },
+                            cancel: function (index) {
+//						         右上角关闭回调
+                                if(confirm('此时取消关注导致互粉失败，会扣除你的信誉值！')){
+                                    ws.send(JSON.stringify({
+										"action":"CancelPairFirst",
+										"state":"cancelfocus"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            }
+                        });
+                    });
+                    break;//低信誉值用户选择是否已经关注匹配用户
+				case 'doconfirmpre':
+				    var temp =
+                        '<span class="user-txt-1">对方是否已经关注你</span>';
+                    layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            content: temp,
+							btn:['已经关注','没有关注'],
+							yes: function () {
+//						      	确认的回调
+								ws.send(JSON.stringify({"action":"ConfirmFocusPre"}));
+								clearlayer();
+								return false
+                            },
+							btn2:function (index) {
+                                if(confirm('如果确认对方没有关注则互粉结束，双方扣除积分！')){
+                                    ws.send(JSON.stringify({
+                                        "action":"CancelPairFirst",
+                                        "state": "NoFocus"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            },
+                            cancel: function (index) {
+//						        右上角关闭回调
+                                if(confirm('如果不进行确认导致互粉结束，会扣除你的信誉值！')){
+                                    ws.send(JSON.stringify({
+                                        "action":"CancelPairFirst",
+                                        "state": "NoConfirm"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            }
+                        });
+                    });
+                    break;//高信誉值用户选择对方是否已经关注自己
+				case 'doconfirmsecond'://高信誉值用户选择是否
+				    var temp = '<span class="user-txt-1">是否愿意关注对方</span>';
+                    layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            content: temp,
+							btn:['去关注','不关注'],
+							yes: function () {
+//						      	确认的回调
+								openkwai_profile(data.userid);
+								clearlayer();
+								ws.send(JSON.stringify({"action":"ConfirmFocusSecond"}));
+								return false
+                            },
+                            btn2: function (index) {
+//						      	取消的回调
+								if(confirm('已确认对方关注了你，若此时取消关注导致互粉失败，会扣除你的信誉值！')){
+                                    ws.send(JSON.stringify({
+                                        "action":"CancelPairFirst",
+                                        "state":"cancelfocusafter"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            },
+                            cancel: function (index) {
+//						        右上角关闭回调
+                                if(confirm('已确认对方关注了你，若此时取消关注导致互粉失败，会扣除你的信誉值！')){
+                                    ws.send(JSON.stringify({
+                                        "action":"CancelPairFirst",
+                                        "state":"cancelfocusafter"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            }
+                        });
+                    });
+					break;//高信誉值用户选择是否去快手关注对方
+				case 'checkfocusfirst':
+				    var temp = '<span class="user-txt-1">对方已关注你，请去粉丝列表确认</span>';
+                    layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            content: temp,
+							btn:['去快手粉丝列表确认'],
+							yes: function () {
+//						      	确认的回调
+								openkwai_profile(data.userid);
+								clearlayer();
+								ws.send(JSON.stringify({"action":"CheckFocusFirst"}));
+								return false
+                            },
+                            cancel: function (index) {
+//						        右上角关闭回调
+                                if(confirm('此时取消确认导致互粉失败，会扣除你的信誉值！')){
+                                    ws.send(JSON.stringify({
+                                        "action":"CancelPairFirst",
+                                        "state": "NoConfirm"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            }
+                        });
+                    });
+                    break;//高信誉值用户选择是否去快手确认对方是否关注
+				case 'checkfocussecond':
+				    var temp = '<span class="user-txt-1">对方已关注你，请去粉丝列表确认</span>';
+                    layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            content: temp,
+							btn:['去快手粉丝列表确认'],
+							yes: function () {
+//						      	确认的回调
+								openkwai_profile(data.userid);
+								clearlayer();
+								ws.send(JSON.stringify({"action":"CheckFocusSecond"}));
+								return false
+                            },
+                            cancel: function (index) {
+//						        右上角关闭回调
+                                if(confirm('此时取消确认导致互粉失败，会扣除你的信誉值！')){
+                                    ws.send(JSON.stringify({
+                                        "action":"CancelPairFirst",
+                                        "state": "NoConfirm"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            }
+                        });
+                    });
+                    break;//低信誉值用户选择是否去快手确认对方是否关注
+				case 'doconfirmfin':
+				    var temp =
+                        '<span class="user-txt-1">对方是否已经关注你</span>';
+                    layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            content: temp,
+							btn:['已经关注','没有关注'],
+							yes: function () {
+//						      	确认的回调
+								ws.send(JSON.stringify({"action":"ConfirmSuccessSecond"}));
+								clearlayer();
+								return false
+                            },
+							btn2:function (index) {
+                                if(confirm('如果确认对方没有关注则互粉结束，双方扣除积分！')){
+                                    ws.send(JSON.stringify({
+                                        "action":"CancelPairFirst",
+                                        "state": "NoFocus"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            },
+                            cancel: function (index) {
+//						        右上角关闭回调
+                                if(confirm('如果不进行确认导致互粉结束，会扣除你的信誉值！')){
+                                    ws.send(JSON.stringify({
+                                        "action":"CancelPairFirst",
+                                        "state": "NoConfirm"}));
+                                    layer.close(index);
+                                }
+                                return false
+                            }
+                        });
+                    });
+                    break;//低信誉值用户选择对方是否已经关注自己
+				case 'dopairsuccess':
+				    var temp =
+						'<div class="user-id" >恭喜与' + data.userid +
+                        '<span class="user-txt-1">互粉成功</span>' +
+                        "</div>";
+                    layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            title: '互粉结束',
+                            content: temp,
+							btn:['确认'],
+							yes: function () {
+//						      	确认的回调
+								clearlayer();
+								return false
+                            },
+                            cancel: function () {
+//						      右上角关闭回调
+                            }
+                        });
+                    });
+                    break;//双方匹配成功
+                //正确与异常分割线
+                case 'errorpair':
+                    var temp;
+                    switch(data.state) {
+                        case 'change':
+                            temp = '<div>对方选择了换一个人，互粉结束</div>';
+                            break;
+                        case 'cancelpair':
+                            temp = '<div>对方取消了本次互粉，互粉结束</div>';
+                            break;
+                        case 'cancelfocus':
+                            temp = '<div>对方取消了关注你，互粉结束</div>';
+                            break;
+                        case 'noconfirm':
+                            temp = '<div>对方取消了确认你是否已关注TA，互粉结束</div>';
+                            break;
+                        case 'nofocus':
+                            temp = '<div>对方反映你没有关注TA，互粉结束</div>';
+                            break;
+                        case 'cancelfocusafter':
+                            temp = '<div>对方确认你已关注TA，取消了对你的关注，互粉结束</div>';
+                            break;
+                    };
+                    layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            content: temp,
+							btn:['重新匹配','冷静一下'],
+							yes: function () {
+//						      	确认的回调
+								clearlayer();
+                                ws.send(JSON.stringify({
+                                    "action": "repair",
+                                    "state": "secondrepair"}));//后提出换人
+                                var temp = '<div>正在重新匹配，请稍等...</div>';
+                                onloading(temp,time);
+								return false
+                            },
+                            btn2:function (index) {
+                                layer.close(index);
+                            },
+                            cancel: function () {
+//						      右上角关闭回调
+                            }
+                        });
+                    });
+                    break;//有一方在确认互粉之初取消了
+			};
+		}
+		if('error' in data){
+		    var temp;
+		    if(data.error == "nopair"){
+		        temp = '<div>没有找到合适用户，匹配结束</div>';
+		        layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+							title:'匹配中',
+                            content: temp,
+							btn:['重新匹配','冷静一下'],
+							yes: function () {
+//						      	确认的回调
+								clearlayer();
+                                ws.send(JSON.stringify({
+                                    "action": "repair",
+                                    "state": "secondrepair"}));//后提出换人
+                                var temp = '<div>正在重新匹配，请稍等...</div>';
+                                onloading(temp,time);
+								return false
+                            },
+                            btn2:function (index) {
+                                layer.close(index);
+                            },
+                            cancel: function () {
+//						      右上角关闭回调
+                            }
+                        });
+                    });
+			};
+		    console.log(data.error);
+		}
+    };
+    ws.onclose = function () {
+        console.log("close!")
+    }
+    ws.onerror = function (evt) {
+        console.log("error!")
+    }
+
+</script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#hufen_start").click(function () {
+        	ws.send(JSON.stringify({"action":"pair"}));
+//        	$("body").showLoading();
+            var temp = '<div>正在匹配合适用户，请稍等...</div>';
+			onloading(temp,60);
+    	});
+	});
+	layui.use('layer', function(){ //全局配置layer
+        var layer = layui.layer;
+        layer.config({
+            type:0,
+            title: '互粉进行中',
+            anim: 5,
+            btnAlign: 'c',
+            closeBtn: 1,
+            shade: 0.5,
+            shadeClose:false,
+            skin: 'layui-layer-molv'});
+    });
+
+</script>
+<script type="text/javascript">
+	function onloading(text,time) {
+		layui.use('layer', function(){
+			    var layer = layui.layer;
+                layer.msg(text,{
+                    icon: 6,
+                    time: time*1000,
+					});//等待time秒
+//                var index = layer.load(2);
+		});
+    }
+
+    function clearlayer() {
+	    layui.use('layer', function(){
+		    var layer = layui.layer;
+		    layer.closeAll();
+		});
+    }
+</script>
+
+
+<div id="head">
+	<fieldset class="layui-elem-field">
+  		<legend>我的信息</legend>
+  		<div class="layui-field-box">
+    		<table class="layui-table" lay-even lay-skin="row" lay-size="sm">
+				<colgroup>
+					<col width="150">
+					<col width="200">
+					<col>
+				</colgroup>
+				<thead>
+					<tr>
+					  <th>快手ID</th>
+					  <th>积分</th>
+					  <th>信誉值</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+					  <td>{{userid}}</td>
+					  <td>{{integral}}</td>
+					  <td>{{credit}}</td>
+					</tr>
+				</tbody>
+			</table>
+  		</div>
+</fieldset>
+</div>
+<div id="btn">
+	<button class="layui-btn" id="hufen_start">开始互粉</button>
+	<button class="layui-btn" id="hufen_history">互粉历史列表</button>
+</div>
+
+
+</body>
+</html>

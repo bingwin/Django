@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+	<title>互粉大厅</title>
+</head>
+<body ontouchstart>
+<link href="{{ static_url('css/weui.min.css')}}" rel="stylesheet" type="text/css" />
+<link href="{{ static_url('css/weui.css')}}" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="{{ static_url('js/jquery-2.1.4.js')}}"></script>
+<script type="text/javascript" src="{{ static_url('js/jquery-2.1.4.min.js')}}"></script>
+<script type="text/javascript" src="{{ static_url('layer/layer.js')}}" ></script>
+<script type="text/javascript" src="{{ static_url('js/gifshow.js')}}"></script>
+<script type="text/javascript" src="{{ static_url('js/hufen.js')}}"></script>
+<div class="weui_cells">
+    <div class="weui_cell">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p>快手ID</p>
+        </div>
+        <div class="weui_cell_ft">{{userid}}</div>
+        <br>
+        <div class="weui_cell_bd weui_cell_primary">
+            <p>积分</p>
+        </div>
+        <div id="integral" class="weui_cell_ft">{{integral}}</div>
+        <br>
+        <div class="weui_cell_bd weui_cell_primary">
+            <p>信誉值</p>
+        </div>
+        <div class="weui_cell_ft">{{credit}}</div>
+        <br>
+    </div>
+</div>
+
+<div id="btn">
+    <button class="weui_btn weui_btn_primary" id="hufen_start">开始互粉</button>
+    <button class="weui_btn weui_btn_primary" id="hufen_history">互粉历史列表</button>
+    <button class="weui_btn weui_btn_warn" id="delete_record">清除互粉记录</button>
+</div>
+</body>
+</html>

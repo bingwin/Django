@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+    <header class="bar bar-nav">
+        <h1 class="title">{% block title %}{% endblock %} </h1>
+        <a href="javascript:;" onClick="javascript:history.back(-1);" class="icon pull-left">
+            <i class="iconfont">&#xe63c;</i>
+        </a>
+
+        <a href="/" class="icon pull-right"><i class="iconfont">&#xe64f;</i></a>
+    </header>
+    {% block refresh %}
+        <div class="weui-pull-to-refresh__layer">
+            <div class='weui-pull-to-refresh__arrow'></div>
+            <div class='weui-pull-to-refresh__preloader'></div>
+            <div class="down">下拉刷新</div>
+            <div class="up">释放刷新</div>
+            <div class="refresh">正在刷新</div>
+        </div>
+    {% endblock %}
+
+    <div class="content">
+        {% block _content %}
+        {% endblock %}
+
+
+    </div>
+
+    <div class="weui-tabbar" style='position: fixed'>
+        <a href="/" class="weui-tabbar__item">
+            <div class="weui-tabbar__icon">
+                <i class="iconfont">&#xe64f;</i>
+            </div>
+            <p class="weui-tabbar__label">首页</p>
+        </a>
+        <a href="{% url "photo:bofan" %}" class="weui-tabbar__item">
+            <div class="weui-tabbar__icon">
+                <i class="iconfont">&#xe679;</i>
+            </div>
+            <p class="weui-tabbar__label">刷浏览量</p>
+        </a>
+        <a href="{% url "photo:list" %}" class="weui-tabbar__item">
+            <div class="weui-tabbar__icon">
+                <i class="iconfont">&#xe626;</i>
+            </div>
+            <p class="weui-tabbar__label">互推大厅</p>
+        </a>
+        <a href="{% url "user:profile" %}" class="weui-tabbar__item weui-bar__item ">
+            <div class="weui-tabbar__icon ">
+                <i class="iconfont qyunread">&#xe659;</i>
+            </div>
+            <p class="weui-tabbar__label ">我</p>
+        </a>
+    </div>
+    {% block refresh_script %}
+        <script>
+            $(document.body).pullToRefresh();
+            $(document.body).on("pull-to-refresh", function () {
+                //do something
+                window.location.href = window.location.href;
+                $(document.body).pullToRefreshDone();
+            });
+        </script>
+
+    {% endblock %}
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends "base-nav.html" %}
+{% load static %}
+
+{% block meta_keywords %}GIF快手,上热门,互赞,互评,互双击{% endblock %}
+{% block meta_description %}无需任何软件，你只需要一个浏览器！互赞,互评,互双击，上热门无压力！{% endblock %}
+
+{% block head %}
+
+
+    <style>
+        .weui-grid__icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+        }
+    </style>
+{% endblock %}
+{% block refresh %}{% endblock %}
+{% block refresh_script %}{% endblock %}
+{% block title %}互推作品{% endblock %}
+{% block _content %}
+
+
+
+
+
+    <div class="weui-cells weui-cells_form">
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">作品</label></div>
+            <div class="weui-cell__bd">
+                <a href="javascript:;" class="weui-btn weui-btn_default open-popup" id="xzphoto">点击选择作品</a>
+                <input type="hidden" id="photo" value="">
+            </div>
+
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">互推期限</label></div>
+            <div class="weui-cell__bd">
+                <input type="text" id='httime' value="一天">
+            </div>
+
+        </div>
+        {#        #}
+        {#        <div class="weui-cell">#}
+        {#            <div class="weui-cell__hd"><label class="weui-label">延迟</label></div>#}
+        {#            <div class="weui-cell__bd">#}
+        {#                <input class="weui-input" id="yanchi" type="number" pattern="[0-9\.]*" placeholder="请输入要延迟的秒数"#}
+        {#                       value="0.1">#}
+        {#            </div>#}
+        {#        </div>#}
+        <div class="weui-btn-area">
+            <a id="start" class="weui-btn weui-btn_primary">开始互推</a>
+        </div>
+
+    </div>
+
+
+
+
+
+    <div id="photos" class='weui-popup__container'>
+        <div class="weui-popup__overlay"></div>
+        <div class="weui-popup__modal">
+            <div class="toolbar">
+                <div class="toolbar-inner">
+                    <a href="javascript:;" class="picker-button close-popup">关闭</a>
+                    <h1 class="title">选择一个作品</h1>
+                </div>
+            </div>
+            <div class="modal-content">
+                <div class="weui-grids" id="pholist_grids">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+{% block script %}
+    <script>userinfo = {{ request.user.info2json|safe }};</script>
+    <script>
+        layui.use(["layer"], function () {
+            layer = layui.layer;
+        });
+
+        $(function () {
+            $(document).on("click", ".selectphoto", function () {
+                 $("#photo").val($(this).data("photoid"));
+                $.closePopup()
+            });
+
+            $("#start").click(function () {
+                var photoid = $("#photo").val(),
+                    httime = $("#httime").val();
+
+
+                if (photoid) {
+                    $.post(window.location.href, {"photoid": photoid, "httime": httime}, function (data) {
+                        if (data["err"] == 0) {
+                            $.alert(data["msg"], "发布成功", function () {
+                                location.href = 'photo/list';
+                                //点击确认后的回调函数
+                            });
+                        } else if (data["err"] == -1) {
+                            $.toast(data["msg"], "forbidden");
+                        } else {
+                            $.toast("异常错误，请联系管理员！", "forbidden");
+                        }
+                    }, "json");
+                } else {
+                    layer.msg("请先选择作品！")
+                }
+
+
+            });
+
+
+            $("#xzphoto").click(function () {
+                $.showLoading();
+                $.ajax({
+                    url: "http://101.200.153.182:8000/rest/n/feed/profile?count=100&pcursor=&user_id=" + userinfo.userid,
+                    dataType: "json",
+                    success: function (data, textStatus, jqXHR) {
+                        $("#pholist_grids").empty();
+
+                        $.each(data.feeds, function (key, feed) {
+
+                            if (feed.type != 2) {
+                                var temp = '<a class="weui-grid js_grid selectphoto" data-photoid="' + feed.photo_id + '">'
+                                    + '<div class="weui-grid__icon">'
+                                    + '<img src="' + feed.cover_thumbnail_urls[0].url + '" alt="">'
+                                    + '</div>'
+                                    + '</a>';
+                                $("#pholist_grids").append(
+                                    temp
+                                )
+                            }
+                        });
+
+                    }
+                });
+                $("#photos").popup();
+                $.hideLoading()
+
+
+            })
+        });
+    </script>
+
+    <script>
+        $("#httime").picker({
+            title: "请给您作品点赞的期限",
+            cols: [
+                {
+                    textAlign: 'center',
+                    values: ['一天', "两天", "三天"]
+                }
+            ]
+        });
+    </script>
+{% endblock %}

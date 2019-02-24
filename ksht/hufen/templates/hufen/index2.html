@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+	<title>互粉</title>
+</head>
+<body ontouchstart>
+<link href="{{ static_url('css/weui.min.css')}}" rel="stylesheet" type="text/css" />
+<link href="{{ static_url('css/weui.css')}}" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="{{ static_url('js/jquery-2.1.4.js')}}"></script>
+<script type="text/javascript" src="{{ static_url('js/jquery-2.1.4.min.js')}}"></script>
+
+<div class="weui_cells">
+    <div class="weui_cell">
+        <div class="weui_cell_bd weui_cell_primary">
+            <p>快手用户</p>
+        </div>
+    </div>
+</div>
+
+<form action="/hall" method="POST">
+    <div class="weui_cells">
+        <div class="weui_cell weui_cell_select">
+            <div class="weui_cell_bd weui_cell_primary">
+                <select class="weui_select" name="userid">
+                    {% for user in users %}
+                        <option value={{user[0]}}>{{user[1]}}</option>
+                    {% end %}
+                </select>
+            </div>
+        </div><br>
+        <button class="weui_btn weui_btn_primary" type="submit">我要互粉</button>
+    </div>
+</form>
+
+
+
+</body>
+</html>

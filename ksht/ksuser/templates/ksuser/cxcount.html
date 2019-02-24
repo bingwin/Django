@@ -1,0 +1,75 @@
+{% extends "base-nav.html" %}
+{% block title %}快手数量查询{% endblock %}
+{% block _content %}
+
+
+    <div class="weui-cells weui-cells_form">
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">快手ID</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" id="ksid" type="number" placeholder="请输入快手ID">
+            </div>
+        </div>
+
+        <div class="weui-btn-area">
+            <a id="cx" class="weui-btn weui-btn_primary">查询</a>
+            <a id="copy" class="weui-btn weui-btn_primary">复制</a>
+        </div>
+
+    </div>
+    <div class="weui-cells">
+        <div class="weui-cells">
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <p>粉丝数量</p>
+                </div>
+                <div class="weui-cell__ft" id="show_fancount"></div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+{% endblock %}
+{% load static %}
+{% block script %}
+    <script src="{% static "plugins/clipboard/clipboard.min.js" %}"></script>
+
+
+    <script>
+        $(function () {
+            $("#cx").click(function () {
+                $.ajax({
+                    url: "http://gifshow.3agzs.com/rest/n/user/profile/v2?user=" + $("#ksid").val(),
+                    dataType: "json",
+                    success: function (data, textStatus, jqXHR) {
+                        var ownercount = data["userProfile"]["ownerCount"];
+                        $("#show_fancount").html(ownercount.fan);
+
+                    }
+                });
+            })
+        })
+    </script>
+    <script type="text/javascript">
+        var clipboard = new Clipboard('#copy',{
+
+        text: function() {
+            var t = "快手ID:"+$("#ksid").val()+"\r当前粉丝数量:"+$("#show_fancount").text();
+            return t;
+        }
+    });
+
+        clipboard.on('success', function (e) {
+            $.modal({title: '复制成功'});
+
+            e.clearSelection();
+        });
+
+        clipboard.on('error', function (e) {
+            $.modal({title: '复制失败'});
+        });
+    </script>
+{% endblock %}

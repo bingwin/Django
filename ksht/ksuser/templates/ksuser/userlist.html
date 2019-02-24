@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="weui-pull-to-refresh__layer">
+        <div class='weui-pull-to-refresh__arrow'></div>
+        <div class='weui-pull-to-refresh__preloader'></div>
+        <div class="down">下拉刷新</div>
+        <div class="up">释放刷新</div>
+        <div class="refresh">正在刷新</div>
+    </div>
+    <header class='ksht-header'>
+        <h1 class="ksht-title">快手互粉平台</h1>
+        <p class='ksht-sub-title'></p>
+    </header>
+    <div class="weui-panel weui-panel_access">
+        <div class="weui-panel__hd">我的信息</div>
+        <div class="weui-panel__bd">
+            <a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+                <div class="weui-media-box__hd">
+                    <img class="weui-media-box__thumb" src="">
+                </div>
+                <div class="weui-media-box__bd">
+                    <h4 class="weui-media-box__title">快手ID：{{ request.ksuser.userid }}</h4>
+                    <p class="weui-media-box__desc">当前积分：{{ request.ksuser.integral }}(每有一个人关注你消耗60积分，积分为负数时不再显示)</p>
+                </div>
+            </a>
+        </div>
+
+
+    </div>
+    <div class="weui-cells__title">互粉大厅</div>
+    <div class="weui-cells">
+        {% for user in users %}
+            <a class="weui-cell weui-cell_access" href="kwai://profile/{{ user.userid }}">
+                <div class="weui-cell__hd"><img src=""></div>
+                <div class="weui-cell__bd">
+                    <p>快手ID：{{ user.userid }}</p>
+                </div>
+                <div class="weui-cell__ft">
+                    <p>关注可获得45积分</p>
+                </div>
+            </a>
+
+        {% endfor %}
+
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $(document.body).pullToRefresh();
+        $(document.body).on("pull-to-refresh", function () {
+            //do something
+            window.location.href = window.location.href;
+            $(document.body).pullToRefreshDone();
+        });
+    </script>
+    <script>
+
+    </script>
+
+{% endblock %}
